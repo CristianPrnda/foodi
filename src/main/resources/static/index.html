@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>foodi · Panel de gestión</title>
+<link rel="stylesheet" href="css/foodi.css">
+</head>
+<body>
+
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo"><span class="logo-mark" style="background:var(--orange);color:#fff;width:24px;height:24px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;font-size:13px">🍽</span> foodi</div>
+    <div class="login-sub">Ingresa a tu panel de gestión</div>
+    <div class="login-error" id="loginError">Correo o contraseña incorrectos.</div>
+    <div class="form-field"><label class="form-label">Correo</label><input class="form-input" id="loginEmail" placeholder="jorge@lafondadelllano.com" value="jorge@lafondadelllano.com"></div>
+    <div class="form-field"><label class="form-label">Contraseña</label><input class="form-input" id="loginPass" type="password" placeholder="••••••••" value="foodi123"></div>
+    <button class="btn-primary" style="width:100%;padding:10px;margin-top:6px" onclick="doLogin()">Iniciar sesión</button>
+    <div class="login-hint">Demo: jorge@lafondadelllano.com / foodi123</div>
+  </div>
+</div>
+
+<div id="appRoot">
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo"><span class="logo-mark">🍽</span> foodi</div>
+    <div class="sede">
+      <div class="sede-avatar">LF</div>
+      <div><div class="sede-name">La Fonda del Llano</div><div class="sede-loc">Sede Chapinero · Bogotá</div></div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">OPERACIÓN</div>
+      <button class="nav-item" data-view="dashboard">▦ Dashboard</button>
+      <button class="nav-item" data-view="mesas">⛶ Mesas en vivo</button>
+      <button class="nav-item" data-view="facturacion">▭ Facturación</button>
+      <button class="nav-item" data-view="clientes">◎ Clientes</button>
+      <button class="nav-item" data-view="inventario">▥ Inventario</button>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">INTELIGENCIA</div>
+      <button class="nav-item" data-view="dashboard">◐ Predicción IA <span class="nav-badge">IA</span></button>
+    </div>
+    <div class="sidebar-footer">
+      <div class="user-avatar">JM</div>
+      <div><div class="user-name">Jorge Mejía</div><div class="user-role" id="userRole">Administrador</div></div>
+      <button class="logout-btn" title="Cerrar sesión" onclick="doLogout()">⏻</button>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div><h1 id="pageTitle">Dashboard</h1><div class="subtitle" id="pageSub">Miércoles 14 de mayo, 2026 · Servicio en curso</div></div>
+      <div class="topbar-actions">
+        <div class="search">🔍 <input placeholder="Buscar mesa, factura, cliente…"></div>
+        <div class="icon-btn">🔔</div>
+        <button class="btn-primary" id="topAction">⚡ Cerrar caja del día</button>
+      </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div class="content active" id="view-dashboard">
+      <div class="kpi-row">
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon">💳</div><div class="kpi-delta" id="kpiVentasDelta">—</div></div><div class="kpi-label">Ventas del día</div><div class="kpi-value" id="kpiVentas">—</div><div class="kpi-foot">vs. ayer</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon">📋</div><div class="kpi-delta" id="kpiPedidosDelta">—</div></div><div class="kpi-label">Total pedidos hoy</div><div class="kpi-value" id="kpiPedidos">—</div><div class="kpi-foot">cierre 22:00</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon">📄</div><div class="kpi-delta">hoy</div></div><div class="kpi-label">Ticket promedio</div><div class="kpi-value" id="kpiTicket">—</div><div class="kpi-foot">por pedido</div></div>
+        <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon">🖨</div><div class="kpi-delta" id="kpiMesasPct">—</div></div><div class="kpi-label">Mesas ocupadas</div><div class="kpi-value" id="kpiMesas">—</div><div class="kpi-foot">ahora mismo</div></div>
+      </div>
+      <div class="mid-row">
+        <div class="panel">
+          <div class="panel-head"><div><div class="panel-title">Tendencia de ventas</div><div class="panel-sub">Última semana · reales vs. predicción IA</div></div>
+            <div class="tabs"><button class="tab active">Semana</button><button class="tab">Mes</button><button class="tab">Trimestre</button></div></div>
+          <div class="legend"><span><i class="dot" style="background:var(--orange)"></i>Ventas reales</span><span><i class="dot" style="background:#333"></i>Predicción IA</span></div>
+          <div class="chart" id="chartBars"></div>
+        </div>
+        <div class="panel ia-panel">
+          <div class="ia-tag">◐ PREDICCIÓN IA</div><div class="ia-title" id="iaTitulo">Pronóstico para mañana</div>
+          <div class="ia-value" id="iaValor">—</div><div class="ia-conf" id="iaConf">Sin predicción todavía</div>
+          <div id="iaAlertas"></div>
+          <button class="btn-secondary" style="width:100%;margin-top:6px" onclick="regenerarPrediccion()">↻ Recalcular predicción</button>
+        </div>
+      </div>
+      <div class="bottom-row">
+        <div class="panel">
+          <div class="panel-head"><div><div class="panel-title">Últimas facturas emitidas</div><div class="panel-sub">Validación DIAN en tiempo real</div></div>
+            <button class="link" onclick="goTo('facturacion')">Ver todas →</button></div>
+          <div id="dashInvoices"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><div><div class="panel-title">Mapa de mesas — en vivo</div><div class="panel-sub">Salón principal</div></div>
+            <button class="link" onclick="goTo('mesas')">Abrir caja →</button></div>
+          <div class="table-grid" id="dashMesas"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MESAS / CAJERO -->
+    <div class="content" id="view-mesas">
+      <div class="two-col">
+        <div class="panel">
+          <div class="panel-head"><div><div class="panel-title">Mapa de mesas</div><div class="panel-sub" id="mesasSub"></div></div></div>
+          <div class="table-grid" id="mesasGrid" style="grid-template-columns:repeat(4,1fr)"></div>
+        </div>
+        <div class="panel" id="mesaDetail"></div>
+      </div>
+    </div>
+
+    <!-- INVENTARIO -->
+    <div class="content" id="view-inventario">
+      <div class="two-col">
+        <div class="panel">
+          <div class="panel-head"><div><div class="panel-title">Ingredientes</div><div class="panel-sub">Stock en vivo · click para registrar movimiento</div></div></div>
+          <table><thead><tr><th>Ingrediente</th><th>Stock</th><th>Costo</th><th>Proveedor</th></tr></thead><tbody id="invBody"></tbody></table>
+        </div>
+        <div class="panel" id="invDetail"></div>
+      </div>
+    </div>
+
+    <!-- CLIENTES -->
+    <div class="content" id="view-clientes">
+      <div class="two-col">
+        <div class="panel">
+          <div class="panel-head"><div><div class="panel-title">Clientes</div><div class="panel-sub" id="clientesSub"></div></div></div>
+          <div class="search" style="width:100%;margin-bottom:10px"><input id="clienteSearch" placeholder="Busca por nombre, NIT o cédula" oninput="cargarClientes()"></div>
+          <table><thead><tr><th>Cliente</th><th>Documento</th><th>Visitas</th><th>Total</th></tr></thead><tbody id="clientesBody"></tbody></table>
+        </div>
+        <div class="panel" id="clienteDetail"></div>
+      </div>
+    </div>
+
+    <!-- FACTURACIÓN -->
+    <div class="content" id="view-facturacion">
+      <div class="kpi-row">
+        <div class="kpi-card"><div class="kpi-label">Total ventas</div><div class="kpi-value" id="facTotal">—</div><div class="kpi-foot" id="facTotalFoot"></div></div>
+        <div class="kpi-card"><div class="kpi-label">IVA recaudado</div><div class="kpi-value" id="facIva">—</div><div class="kpi-foot">impuesto al consumo 8%</div></div>
+        <div class="kpi-card"><div class="kpi-label">Aceptadas DIAN</div><div class="kpi-value" id="facAcept">—</div><div class="kpi-foot" id="facAceptFoot"></div></div>
+        <div class="kpi-card"><div class="kpi-label">Rechazadas</div><div class="kpi-value" id="facRech">—</div><div class="kpi-foot" id="facRechFoot"></div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><div><div class="panel-title">Documentos emitidos</div><div class="panel-sub" id="facSub"></div></div></div>
+        <div class="search" style="width:280px;margin-bottom:10px"><input id="facSearch" placeholder="Buscar prefijo, número o cliente…" oninput="cargarFacturas()"></div>
+        <table><thead><tr><th>Número</th><th>Cliente</th><th>Subtotal</th><th>Total</th><th>Estado</th><th></th></tr></thead><tbody id="facBody"></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+</div><!-- /appRoot -->
+
+<div class="toast-wrap" id="toasts"></div>
+<script src="js/foodi.js"></script>
+</body>
+</html>
